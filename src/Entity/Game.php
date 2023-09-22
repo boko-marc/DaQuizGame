@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\GameRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: GameRepository::class)]
 class Game
@@ -13,8 +14,10 @@ class Game
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $film_id = null;
+    #[ORM\Column(nullable: false)]
+    #[Assert\NotBlank()]
+    #[Assert\Type('integer',)]
+    private ?int $film_id;
 
     #[ORM\Column(type: "integer", options: ["default" => 0])]
     private ?int $score = 0;
