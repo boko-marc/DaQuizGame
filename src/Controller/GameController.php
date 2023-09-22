@@ -14,7 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 
 
-#[Route('/game', name: 'game_')]
+#[Route('/api/game', name: 'game_')]
 
 class GameController extends AbstractController
 {
@@ -35,7 +35,15 @@ class GameController extends AbstractController
 
         return $this->json(['message' => 'Le jeu a été créé avec succès.', 'data' => ['id' => $game->getId(), 'film_id' => $game->getFilmId()]], Response::HTTP_CREATED);
     }
+
+    #[Route('/{id}/play', name: 'play', methods: 'GET')]
+    public function play(Game $game): Response
+    {
+        $movieActors = $this->tMDBService->getMovieActors($game->getFilmId());
+        // choice a random movie actor
+        $firstActor = $movieActors[array_rand($movieActors)];
+        $secondActor = $this->tMDBService->getFakeActorFromMovie($game->getFilmId());
+        $data = ['film_id' => $game->getId(), 'first_actor' => $firstActor, 'second_actor' => $secondActor];
+        return $this->json(['message' => "Film récupéré avec deux auteurs avec succès", 'data' => $data], Response::HTTP_OK);
+    }
 }
-
-
-

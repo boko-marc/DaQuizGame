@@ -26,7 +26,6 @@ class TMDBService
             ];
             $actors[] = $actor;
         }
-
         return $actors;
     }
 
@@ -46,27 +45,61 @@ class TMDBService
     }
 
 
-    public function getRandomActorFromDifferentMovie(int $excludeMovieId)
+    public function getFakeActorFromMovie(int $movieId)
     {
         do {
-            // get latest film id
-            $response = $this->client->request('GET', "movie/latest");
-
-            $data = $response->toArray();
-            $latestMovieId = $data['id'];
-
-            // verify if latest film id is different of  $excludeMovieId
-            if ($latestMovieId != $excludeMovieId) {
-                $actors = $this->getMovieActors($latestMovieId);
-
-                $randomActor = $actors[array_rand($actors)];
-
-                return  ['id' => $randomActor['id'], 'name' => $randomActor['name']];
+            // get latest film 
+            $randomDifferentMovie = $this->getRandomPopularMovieWithDifferentId($movieId);
+            $randomDifferentMovieActors = $this->getMovieActors($randomDifferentMovie);
+            // get random latest film actor
+            $randomActor = $randomDifferentMovieActors[array_rand($randomDifferentMovieActors)];
+            if ($randomActor['department'] === 'Acting') {
+                $excludeMovieActors = $this->getMovieActors($movieId);
+                $actorName = $randomActor['name'];
+                $isActorInExcludeMovie = false;
+                foreach ($excludeMovieActors as $excludeMovieActor) {
+                    if ($excludeMovieActor['name'] === $actorName) {
+                        $isActorInExcludeMovie = true;
+                        break;
+                    }
+                }
+                if (!$isActorInExcludeMovie) {
+                    return ['id' => $randomActor['id'], 'name' => $actorName];
+                }
             }
-        } while ($latestMovieId == $excludeMovieId);
+        } while (true);
 
-        throw new \Exception('Aucun film différent trouvé.');
+        throw new \Exception('Aucun acteur différent trouvé.');
     }
+
+    public function getRandomPopularMovieWithDifferentId(int $excludeMovieId)
+    {
+        // Récupérez la liste des films populaires
+        $popularMoviesResponse = $this->client->request('GET', 'movie/popular');
+        $popularMovies = $popularMoviesResponse->toArray()['results'];
+
+        // Créez un tableau pour stocker les IDs des films populaires avec des IDs différents
+        $popularMoviesWithDifferentId = [];
+
+        // Filtrez les films populaires pour ne conserver que ceux avec des IDs différents
+        foreach ($popularMovies as $movie) {
+            if ($movie['id'] != $excludeMovieId) {
+                $popularMoviesWithDifferentId[] = $movie;
+            }
+        }
+
+        // Choisissez un film populaire au hasard parmi ceux avec des IDs différents
+        if (!empty($popularMoviesWithDifferentId)) {
+            $randomMovieKey = array_rand($popularMoviesWithDifferentId);
+            $randomMovie = $popularMoviesWithDifferentId[$randomMovieKey];
+            return  $randomMovie['id'];
+        }
+
+        throw new \Exception('Aucun film populaire avec un ID différent trouvé.');
+    }
+
+
+
 
 
     public function isValidMovie(int $movieId)
