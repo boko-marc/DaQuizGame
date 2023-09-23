@@ -92,5 +92,13 @@ class GameController extends AbstractController
         return $this->json(['message' => 'Réponse traitée avec succès', 'score' => $game->getScore(), 'statut' => $game->isStatut()]);
     }
     
-    
+    #[Route('/{id}', name: 'gameScore', methods: 'GET')]
+    public function gameScore(Game $game): Response
+    {
+        $data = [
+            "score" => $game->getScore(),
+            "statut" => $game->isStatut()
+        ];
+        return $this->json(['message' => 'Game score récupéré avec succès', 'data' => $data]);
+    }
 }
