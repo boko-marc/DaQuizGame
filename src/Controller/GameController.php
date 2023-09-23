@@ -6,6 +6,7 @@ use App\Service\TMDBService;
 use Symfony\Component\HttpFoundation\Response;
 
 use App\Entity\Game;
+use App\Entity\QuizEntity;
 use App\Requests\CreateGameRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -37,13 +38,33 @@ class GameController extends AbstractController
     }
 
     #[Route('/{id}/play', name: 'play', methods: 'GET')]
-    public function play(Game $game): Response
+    public function play(Game $game, EntityManagerInterface $entityManager): Response
     {
         $movieActors = $this->tMDBService->getMovieActors($game->getFilmId());
+
         // choice a random movie actor
         $firstActor = $movieActors[array_rand($movieActors)];
+        //choice fake random actor
         $secondActor = $this->tMDBService->getFakeActorFromMovie($game->getFilmId());
-        $data = ['film_id' => $game->getId(), 'first_actor' => $firstActor, 'second_actor' => $secondActor];
+
+        // persist quiz data 
+        $quiz = new QuizEntity();
+        $quiz->setGame($game);
+        $quiz->setTrueActor($firstActor['id']);
+        $quiz->setFakeActor($secondActor['id']);
+        $quiz->setRandom($this->generateRandomKey());
+        $entityManager->persist($quiz);
+        $entityManager->flush();
+
+        $data = ['quiz_key' => $quiz->getRandom(), 'first_actor' => $firstActor, 'second_actor' => $secondActor];
         return $this->json(['message' => "Film récupéré avec deux auteurs avec succès", 'data' => $data], Response::HTTP_OK);
     }
+    public function generateRandomKey()
+    {
+        $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 4);
+        return $random;
+    }
+
+    
+
 }

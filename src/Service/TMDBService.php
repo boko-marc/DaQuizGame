@@ -74,21 +74,19 @@ class TMDBService
 
     public function getRandomPopularMovieWithDifferentId(int $excludeMovieId)
     {
-        // Récupérez la liste des films populaires
+        // get popular movies list
         $popularMoviesResponse = $this->client->request('GET', 'movie/popular');
         $popularMovies = $popularMoviesResponse->toArray()['results'];
 
-        // Créez un tableau pour stocker les IDs des films populaires avec des IDs différents
+        // get popular movies id diffents to $excludeMovieId
         $popularMoviesWithDifferentId = [];
-
-        // Filtrez les films populaires pour ne conserver que ceux avec des IDs différents
         foreach ($popularMovies as $movie) {
             if ($movie['id'] != $excludeMovieId) {
                 $popularMoviesWithDifferentId[] = $movie;
             }
         }
 
-        // Choisissez un film populaire au hasard parmi ceux avec des IDs différents
+        // choice a random actor between popular movies different $excludeMovie
         if (!empty($popularMoviesWithDifferentId)) {
             $randomMovieKey = array_rand($popularMoviesWithDifferentId);
             $randomMovie = $popularMoviesWithDifferentId[$randomMovieKey];
