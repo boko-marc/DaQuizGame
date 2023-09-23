@@ -8,9 +8,9 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Entity\Game;
 use App\Entity\QuizEntity;
 use App\Requests\CreateGameRequest;
+use App\Requests\RespondQuizRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
 
@@ -65,6 +65,32 @@ class GameController extends AbstractController
         return $random;
     }
 
-    
+    #[Route('/{id}/play', name: 'respondQuiz', methods: 'POST')]
+    public function respondQuiz(Game $game, RespondQuizRequest $request, EntityManagerInterface $entityManager): Response
+    {
+        $quizRepository = $entityManager->getRepository(QuizEntity::class);
 
+        $quizKey = $request->getQuizKey();
+
+        $quiz = $quizRepository->findOneBy(['random' => $quizKey, 'game' => $game]);
+        if (is_null($quiz)) {
+            return $this->json(['message' => 'Quiz non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        $chosenActorId = $request->getActorId();
+        if ($chosenActorId == $quiz->getTrueActor()) {
+            $game->setScore($game->getScore() + 1);
+        } else {
+            $game->setStatut(false);
+        }
+
+
+        $entityManager->persist($game);
+        $entityManager->remove($quiz);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'Réponse traitée avec succès', 'score' => $game->getScore(), 'statut' => $game->isStatut()]);
+    }
+    
+    
 }
