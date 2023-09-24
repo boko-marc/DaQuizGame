@@ -24,7 +24,7 @@ cd DaQuizGame
 composer install
 
 # create .env file and generate the application key
-cp .env.example .env
+cp example.env .env
 symfony console secrets:generate-keys
 
 NB: You need to generate TMDB API Bearer Token to use this API  [TMDB](https://www.themoviedb.org) 
@@ -75,9 +75,7 @@ Play game: Retrieve a movie and the list of actors among which the player must f
 * POST (POST /game/<hash>/play)
 
 You can use POST request to play game  with quiz_key and actor_id entries. Order the  following _curl_ command from a terminal (POST  body will be sent in json format):
- -
-
-        
+ 
     curl -i -H "Content-Type: application/json" -X POST -d '{"qui_key": "1AZ5", "actor_id" : 1234566}' https://127.0.0.1:8000/api/game/<hash>/play
 
     If any quiz don't match with quiz_key  you will have the response code 400(seen in your terminal).You should also see a  " Quiz non trouvé." message
