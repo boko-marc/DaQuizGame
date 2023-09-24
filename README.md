@@ -107,6 +107,13 @@ You can use POST request to play game  with quiz_key and actor_id entries. Order
  If everything worked properly you should have received a response code 200 (seen in your terminal). You should also see a "Game score récupéré avec succès". with score and statut informations 
 
 
+## Tests
+Execute this command to run tests:
+
+```bash
+./vendor/bin/phpunit 
+``` 
+
 ## Licence
 
 This software is licensed under the Apache 2 license, quoted below.
