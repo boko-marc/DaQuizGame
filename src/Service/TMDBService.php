@@ -33,7 +33,6 @@ class TMDBService
     public function isActorInMovie(int $movieId, int $actorId)
     {
         $actors = $this->getMovieActors($movieId);
-
         // Recherchez l'acteur avec l'ID donné
         foreach ($actors as $actor) {
             if ($actor['department'] === 'Acting' && $actor['id'] === $actorId) {
@@ -48,10 +47,10 @@ class TMDBService
     public function getFakeActorFromMovie(int $movieId)
     {
         do {
-            // get latest film 
+            // get random popular different on  movie selected 
             $randomDifferentMovie = $this->getRandomPopularMovieWithDifferentId($movieId);
             $randomDifferentMovieActors = $this->getMovieActors($randomDifferentMovie);
-            // get random latest film actor
+            // get random  actor 
             $randomActor = $randomDifferentMovieActors[array_rand($randomDifferentMovieActors)];
             if ($randomActor['department'] === 'Acting') {
                 $excludeMovieActors = $this->getMovieActors($movieId);
@@ -95,9 +94,6 @@ class TMDBService
 
         throw new \Exception('Aucun film populaire avec un ID différent trouvé.');
     }
-
-
-
 
 
     public function isValidMovie(int $movieId)
