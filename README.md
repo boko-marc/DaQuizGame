@@ -47,7 +47,7 @@ symfony server:start -d
 
 The  project is now up and running! Access it at  https://127.0.0.1:8000.
 # Setup database
-For this project is use PostgreSQL you're full free to use any SQL database.
+For this project i use PostgreSQL you're full free to use any relational database.
 After add DATABASE_URL in .env file , run these command
 
 ```bash
