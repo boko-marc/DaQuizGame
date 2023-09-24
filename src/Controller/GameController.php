@@ -52,6 +52,7 @@ class GameController extends AbstractController
         $quiz->setGame($game);
         $quiz->setTrueActor($firstActor['id']);
         $quiz->setFakeActor($secondActor['id']);
+        // generate random quiz key
         $quiz->setRandom($this->generateRandomKey());
         $entityManager->persist($quiz);
         $entityManager->flush();
@@ -86,6 +87,7 @@ class GameController extends AbstractController
 
 
         $entityManager->persist($game);
+        // delete quiz
         $entityManager->remove($quiz);
         $entityManager->flush();
 
