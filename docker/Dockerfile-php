@@ -1,0 +1,43 @@
+FROM php:8.2-fpm
+RUN apt-get update && apt-get install -y \
+    gnupg \
+    g++ \
+    procps \
+    openssl \
+    git \
+    unzip \
+    zlib1g-dev \
+    libzip-dev \
+    libfreetype6-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libicu-dev  \
+    libonig-dev \
+    libxslt1-dev \
+    wget \
+    acl \
+    && echo 'alias sf="php bin/console"' >> ~/.bashrc
+
+RUN docker-php-ext-configure gd --with-jpeg --with-freetype 
+
+RUN docker-php-ext-install \
+    pdo  zip xsl gd intl opcache exif mbstring
+COPY build/php/opcache.ini /usr/local/etc/php/conf.d/
+COPY build/php/custom.ini /usr/local/etc/php/conf.d/
+RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer
+RUN composer self-update 1.9.0
+RUN wget --no-check-certificate https://phar.phpunit.de/phpunit-6.5.3.phar && \
+    mv phpunit*.phar phpunit.phar && \
+    chmod +x phpunit.phar && \
+    mv phpunit.phar /usr/local/bin/phpunit
+RUN usermod -u 1000 www-data
+RUN usermod -a -G www-data root
+RUN mkdir -p /var/www
+RUN chown -R www-data:www-data /var/www
+RUN mkdir -p /var/www/.composer
+RUN chown -R www-data:www-data /var/www/.composer
+WORKDIR /var/www/project/
+
+
+
+
