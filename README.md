@@ -62,31 +62,31 @@ You have a complete Postman documentation of this project.
 
 ## Example
 
-* POST (POST /game)
+* POST (POST /api/game)
 
-You can use POST request to create game  with film_id entrie. Order the  following _curl_ command from a terminal (POST  body will be sent in json format):
+You can use POST request to start game . Order the  following _curl_ command from a terminal (POST  body will be sent in json format):
 
     ``` bash  
-    curl -i -H "Content-Type: application/json" -X POST -d '{"film_id": 111111}' https://127.0.0.1:8000/api/game
+    curl -i -H "Content-Type: application/json" -X POST -d  https://127.0.0.1:8000/api/game
    
     ```
 
-    If the film doesn't exist you will have the response code 400(seen in your terminal).You should also see a message " L'ID du film n'est pas valide."
+   
 
-    If everything worked properly you should have received a response code 200 (seen in your terminal). You should also see a message "Le jeu a été créé avec succès". 
+    If everything worked properly you should have received a response code 200 (seen in your terminal). You should also see a message "Le jeu a été créé avec succès". You receive quiz and game in response payload
 
 
-* GET (GET /game/<hash>/play)
+* GET (GET /api/game/<hash>/play)
 
 Play game: Retrieve a movie and the list of two actors among which the player must find the correct answer 
 
 ```bash
      curl -X GET https://127.0.0.1:8000/api/game/{<hash>}/play
 ```     
- If everything worked properly you should have received a response code 200 (seen in your terminal). You should also see a message "Film récupéré avec deux auteurs avec succès". with two actors and quiz_key. 
+ If everything worked properly you should have received a response code 200 (seen in your terminal). You should also see a message "Film récupéré avec deux auteurs avec succès". with two actors, selected movie datas and quiz_key. 
  NB: After quiz is created , we generate a unique quiz key , which used to response to a quiz.After quiz is respond, it's automatically deleted from the database .
 
-* POST (POST /game/<hash>/play)
+* POST (POST /api/game/<hash>/play)
 
 You can use POST request to play game  with quiz_key and actor_id entries. Order the  following _curl_ command from a terminal (POST  body will be sent in json format):
  
