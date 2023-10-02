@@ -24,28 +24,44 @@ class GameController extends AbstractController
     }
     #[Route('', name: 'create', methods: ['POST'])]
 
-    public function create(CreateGameRequest $request, EntityManagerInterface $entityManager): Response
+    public function create(EntityManagerInterface $entityManager): Response
     {
-        if (!$this->tMDBService->isValidMovie($request->getFilmId())) {
-            return $this->json(['message' => 'L\'ID du film n\'est pas valide.'], Response::HTTP_BAD_REQUEST);
-        }
+
+        $randomMovie = $this->tMDBService->getRandomMovie();
+        $randomMovieActors = $this->tMDBService->getMovieActors($randomMovie['id']);
         $game = new Game();
-        $game->setFilmId($request->getFilmId());
         $entityManager->persist($game);
         $entityManager->flush();
+        // choice a random movie actor
+        $rightActor = $randomMovieActors[array_rand($randomMovieActors)];
 
-        return $this->json(['message' => 'Le jeu a été créé avec succès.', 'data' => ['id' => $game->getId(), 'film_id' => $game->getFilmId()]], Response::HTTP_CREATED);
+        //choice fake random actor
+        $fakeActor = $this->tMDBService->getFakeActorFromMovie($randomMovie['id']);
+
+        // persist quiz data 
+        $quiz = new QuizEntity();
+        $quiz->setGame($game);
+        $quiz->setTrueActor($rightActor['id']);
+        $quiz->setFakeActor($fakeActor['id']);
+        // generate random quiz key
+        $quiz->setRandom($this->generateRandomKey());
+        $entityManager->persist($quiz);
+        $entityManager->flush();
+        $quizData = ['quiz_key' => $quiz->getRandom(), 'first_actor' => $rightActor, 'second_actor' => $fakeActor];
+        return $this->json(['message' => 'Le jeu a été créé avec succès.', 'data' => ['id' => $game->getId(), 'selected_movie' => $randomMovie, 'quiz' => $quizData]], Response::HTTP_CREATED);
     }
 
     #[Route('/{id}/play', name: 'play', methods: 'GET')]
     public function play(Game $game, EntityManagerInterface $entityManager): Response
     {
-        $movieActors = $this->tMDBService->getMovieActors($game->getFilmId());
+        $randomMovie = $this->tMDBService->getRandomMovie();
+
+        $movieActors = $this->tMDBService->getMovieActors($randomMovie['id']);
 
         // choice a random movie actor
         $firstActor = $movieActors[array_rand($movieActors)];
         //choice fake random actor
-        $secondActor = $this->tMDBService->getFakeActorFromMovie($game->getFilmId());
+        $secondActor = $this->tMDBService->getFakeActorFromMovie($randomMovie['id']);
 
         // persist quiz data 
         $quiz = new QuizEntity();
@@ -57,7 +73,7 @@ class GameController extends AbstractController
         $entityManager->persist($quiz);
         $entityManager->flush();
 
-        $data = ['quiz_key' => $quiz->getRandom(), 'first_actor' => $firstActor, 'second_actor' => $secondActor];
+        $data = ['quiz_key' => $quiz->getRandom(), 'first_actor' => $firstActor, 'second_actor' => $secondActor, "selected_movie" => $randomMovie];
         return $this->json(['message' => "Film récupéré avec deux auteurs avec succès", 'data' => $data], Response::HTTP_OK);
     }
     public function generateRandomKey()
@@ -93,7 +109,7 @@ class GameController extends AbstractController
 
         return $this->json(['message' => 'Réponse traitée avec succès', 'score' => $game->getScore(), 'statut' => $game->isStatut()]);
     }
-    
+
     #[Route('/{id}', name: 'gameScore', methods: 'GET')]
     public function gameScore(Game $game): Response
     {

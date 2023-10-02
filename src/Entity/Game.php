@@ -16,10 +16,7 @@ class Game
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(nullable: false)]
-    #[Assert\NotBlank()]
-    #[Assert\Type('integer',)]
-    private ?int $film_id;
+   
 
     #[ORM\Column(type: "integer", options: ["default" => 0])]
     private ?int $score = 0;
@@ -47,17 +44,8 @@ class Game
         return $this->id;
     }
 
-    public function getFilmId(): ?int
-    {
-        return $this->film_id;
-    }
+    
 
-    public function setFilmId(?int $film_id): static
-    {
-        $this->film_id = $film_id;
-
-        return $this;
-    }
 
     public function getScore(): ?int
     {

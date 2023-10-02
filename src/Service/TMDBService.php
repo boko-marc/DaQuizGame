@@ -33,7 +33,7 @@ class TMDBService
     public function isActorInMovie(int $movieId, int $actorId)
     {
         $actors = $this->getMovieActors($movieId);
-        // Recherchez l'acteur avec l'ID donné
+        // find actor between movie actors
         foreach ($actors as $actor) {
             if ($actor['department'] === 'Acting' && $actor['id'] === $actorId) {
                 return true;
@@ -70,7 +70,20 @@ class TMDBService
 
         throw new \Exception('Aucun acteur différent trouvé.');
     }
+    public function getRandomMovie()
+    {
+        $pageRandomId = rand(1, 500);
+        $popularMoviesResponse = $this->client->request('GET', 'movie/popular', [
+            'query' => [
+                'page' => $pageRandomId
+            ]
+        ]);
+        $popularMovies = $popularMoviesResponse->toArray()['results'];
+        $randomMovieKey = array_rand($popularMovies);
 
+        $randomMovie = $popularMovies[$randomMovieKey];
+        return  ['id' => $randomMovie['id'], "title"  => $randomMovie['title'], "overview" => $randomMovie['overview'], 'poster_path' => $randomMovie["poster_path"]];
+    }
     public function getRandomPopularMovieWithDifferentId(int $excludeMovieId)
     {
         // get popular movies list
